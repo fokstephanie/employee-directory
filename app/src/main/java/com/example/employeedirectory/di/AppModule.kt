@@ -4,8 +4,7 @@ import com.example.employeedirectory.data.remote.EmployeeRemoteDataSource
 import com.example.employeedirectory.data.remote.RetrofitDataSource
 import com.example.employeedirectory.data.repository.EmployeeRepository
 import com.example.employeedirectory.data.repository.EmployeeRepositoryImpl
-import com.example.employeedirectory.network.RetrofitHelper
-import com.example.employeedirectory.network.api.EmployeeApi
+import com.example.employeedirectory.data.network.EmployeeApi
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -24,7 +23,7 @@ object AppModule {
     @Provides
     fun provideEmployeeApi(): EmployeeApi =
         Retrofit.Builder()
-        .baseUrl(RetrofitHelper.baseUrl)
+        .baseUrl(baseUrl)
         .addConverterFactory(MoshiConverterFactory.create())
         .build().create(EmployeeApi::class.java)
 

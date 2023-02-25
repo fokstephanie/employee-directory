@@ -1,7 +1,7 @@
 package com.example.employeedirectory.data.remote
 
 import com.example.employeedirectory.model.Employee
-import com.example.employeedirectory.network.api.EmployeeApi
+import com.example.employeedirectory.data.network.EmployeeApi
 import javax.inject.Inject
 
 class RetrofitDataSource @Inject constructor(
