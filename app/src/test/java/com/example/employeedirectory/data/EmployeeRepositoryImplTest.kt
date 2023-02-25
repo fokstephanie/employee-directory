@@ -1,15 +1,8 @@
 package com.example.employeedirectory.data
 
-class EmployeeRepositoryImplTest {
-}
-
-/**
- * package com.adam.stocks.data
-
-import com.adam.stocks.MainDispatcherRule
-import com.adam.stocks.data.network.fake.FakeRemoteDataSource
-import com.adam.stocks.data.network.models.asStock
-import com.adam.stocks.data.repository.StocksRepositoryImpl
+import com.example.employeedirectory.MainDispatcherRule
+import com.example.employeedirectory.data.remote.fake.FakeEmployeeDataSource
+import com.example.employeedirectory.data.repository.EmployeeRepositoryImpl
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.single
@@ -21,32 +14,28 @@ import org.junit.Rule
 import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class StocksRepositoryImplTest {
-private lateinit var subject: StocksRepositoryImpl
+class EmployeeRepositoryImplTest {
+    @get:Rule
+    val mainDispatcherRule = MainDispatcherRule()
 
-@get:Rule
-val mainDispatcherRule = MainDispatcherRule()
+    private lateinit var repository: EmployeeRepositoryImpl
+    private lateinit var fakeEmployeeDataSource: FakeEmployeeDataSource
+    private lateinit var testDispatcher: CoroutineDispatcher
 
-private lateinit var fakeRemoteDataSource: FakeRemoteDataSource
-private lateinit var testDispatcher: CoroutineDispatcher
+    @Before
+    fun setup() {
+        testDispatcher = StandardTestDispatcher()
 
-@Before
-fun setup() {
-testDispatcher = StandardTestDispatcher()
+        fakeEmployeeDataSource = FakeEmployeeDataSource(testDispatcher)
+        repository = EmployeeRepositoryImpl(fakeEmployeeDataSource, testDispatcher)
+    }
 
-fakeRemoteDataSource = FakeRemoteDataSource(testDispatcher)
-subject = StocksRepositoryImpl(fakeRemoteDataSource, testDispatcher)
+    @Test
+    fun `repository flow is backed by remote data source` () = runTest {
+        Assert.assertEquals(
+            fakeEmployeeDataSource.fetchEmployees(),
+            repository.employees.single()
+        )
+        // TODO: import runTest properly
+    }
 }
-
-@Test
-fun `repository flow is backed by remote data source` () = runTest {
-Assert.assertEquals(
-fakeRemoteDataSource.fetchStocks().map { it.asStock() },
-subject.stocksList.single()
-)
-}
-}
- *
- *
- *
- * */

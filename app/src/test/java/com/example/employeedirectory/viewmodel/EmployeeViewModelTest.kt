@@ -2,12 +2,17 @@ package com.example.employeedirectory.viewmodel
 
 import androidx.lifecycle.ViewModel
 import com.example.employeedirectory.MainDispatcherRule
+import com.example.employeedirectory.data.remote.fake.FakeEmployeeData
 import com.example.employeedirectory.data.remote.fake.FakeEmployeeDataSource
 import com.example.employeedirectory.data.repository.EmployeeRepository
+import com.example.employeedirectory.view.state.UIState
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.test.StandardTestDispatcher
+import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Rule
+import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class EmployeeViewModelTest {
@@ -25,6 +30,50 @@ class EmployeeViewModelTest {
         employeeRepository = EmployeeRepository() // TODO
 
         viewModel = EmployeeViewModel(employeeRepository)
+    }
+
+    @Test
+    fun `initial loading state`() = runTest {
+        assertTrue(viewModel.uiState.value is UIState.Loading)
+    }
+
+    @Test
+    fun `malformed data returns error state`() {
+        // TODO: Make sure malformed data is set in view model
+        employeeDataSource.data = FakeEmployeeData.malformedEmployees
+
+        val collect = launch(UnconfinedTestDispatcher()) { viewModel.uiState.collect()}
+        val expectedStocks = employeeRepository.employees.single()
+
+        assertTrue(viewModel.uiState.value is UIState.Error)
+
+        collect.cancel()
+    }
+
+    @Test
+    fun `empty data returns empty state`() {
+        employeeDataSource.data = FakeEmployeeData.emptyEmployees
+
+        val collect = launch(UnconfinedTestDispatcher()) { viewModel.uiState.collect()}
+        val expectedStocks = employeeRepository.employees.single()
+
+        assertTrue(viewModel.uiState.value is UIState.Empty)
+        assertTrue(expectedStocks.isEmpty())
+
+        collect.cancel()
+    }
+
+    @Test
+    fun `successful data retrieval returns success state`(){
+        employeeDataSource.data = FakeEmployeeData.validEmployees
+
+        val collect = launch(UnconfinedTestDispatcher()) { viewModel.uiState.collect()}
+        val expectedStocks = employeeRepository.employees.single()
+
+        assertTrue(viewModel.uiState.value is UIState.Success)
+        assertFalse(expectedStocks.isEmpty())
+
+        collect.cancel()
     }
 }
 
@@ -66,15 +115,15 @@ private lateinit var stocksDataSource: FakeRemoteDataSource
 private lateinit var getStocksUseCase: GetStocksUseCase
 private val getFormattedStockUseCase = GetFormattedStockUseCase()
 
-@Before
-fun setup() {
-val dispatcher = StandardTestDispatcher()
-stocksDataSource = FakeRemoteDataSource(dispatcher)
-stocksRepository = FakeStocksRepository(stocksDataSource, dispatcher)
-getStocksUseCase = GetStocksUseCase(stocksRepository, getFormattedStockUseCase)
+            @Before
+            fun setup() {
+            val dispatcher = StandardTestDispatcher()
+            stocksDataSource = FakeRemoteDataSource(dispatcher)
+            stocksRepository = FakeStocksRepository(stocksDataSource, dispatcher)
+            getStocksUseCase = GetStocksUseCase(stocksRepository, getFormattedStockUseCase)
 
-subject = StocksViewModel(getStocksUseCase)
-}
+            subject = StocksViewModel(getStocksUseCase)
+            }
 
 @Test
 fun `state is initially loading`() = runTest {
@@ -98,21 +147,21 @@ assertEquals(expectedStocks, successState.stocks)
 collect.cancel()
 }
 
-@Test
-fun `stats is empty when data source is empty`() = runTest {
-stocksDataSource.data = FakeStocksData.emptyStocksData
+    @Test
+    fun `stats is empty when data source is empty`() = runTest {
+        stocksDataSource.data = FakeStocksData.emptyStocksData
 
-val collect = launch(UnconfinedTestDispatcher()) { subject.uiState.collect()}
+        val collect = launch(UnconfinedTestDispatcher()) { subject.uiState.collect()}
 
-// Trigger the flow
-val expectedStocks = stocksRepository.stocksList.map { stocksList ->
-stocksList.map { getFormattedStockUseCase(it) }
-}.single()
+        // Trigger the flow
+        val expectedStocks = stocksRepository.stocksList.map { stocksList ->
+        stocksList.map { getFormattedStockUseCase(it) }
+        }.single()
 
-assertTrue(subject.uiState.value is StocksUiState.Empty)
-assertTrue(expectedStocks.isEmpty())
+        assertTrue(subject.uiState.value is StocksUiState.Empty)
+        assertTrue(expectedStocks.isEmpty())
 
-collect.cancel()
-}
+        collect.cancel()
+    }
 }
  * */
