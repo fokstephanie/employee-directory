@@ -1,0 +1,6 @@
+<resources>
+    <dimen name="fab_margin">16dp</dimen>
+    <dimen name="employee_image_width">50dp</dimen>
+    <dimen name="list_item_padding_horizontal">20dp</dimen>
+    <dimen name="list_item_padding_vertical">10dp</dimen>
+</resources>
