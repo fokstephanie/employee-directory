@@ -1,8 +1,6 @@
 package com.example.employeedirectory.view
 
-import android.content.res.Resources
 import android.os.Bundle
-import android.util.Log
 import com.example.employeedirectory.R
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -37,7 +35,7 @@ class EmployeesFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = MainEmployeeListBinding.inflate(inflater, container, false)
 
         adapter = EmployeeListViewAdapter()
@@ -91,7 +89,7 @@ class EmployeesFragment : Fragment() {
     }
 
     private fun setViewVisibilities(view: View) {
-        binding.loadingBar.isVisible = true
+        binding.loadingBar.isVisible = false
         binding.recyclerView.isVisible = false
         binding.errorInfoView.isVisible = false
 

@@ -13,7 +13,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class EmployeeViewModel @Inject constructor(
-    private val employeeRepository: EmployeeRepository,
+    employeeRepository: EmployeeRepository,
 ): ViewModel() {
     val uiState: StateFlow<UIState> = // TODO: Reasoning for using a state flow?
         employeeRepository.employees.asResult().map { result ->
